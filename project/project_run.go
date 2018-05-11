@@ -11,7 +11,8 @@ import (
 
 // Run executes a one off command (like `docker run image command`).
 func (p *Project) Run(ctx context.Context, serviceName string, commandParts []string, opts options.Run) (int, error) {
-	if !p.ServiceConfigs.Has(serviceName) {
+	serviceConfig, hasServiceConfig := p.ServiceConfigs.Get(serviceName)
+	if !hasServiceConfig {
 		return 1, fmt.Errorf("%s is not defined in the template", serviceName)
 	}
 
@@ -19,7 +20,7 @@ func (p *Project) Run(ctx context.Context, serviceName string, commandParts []st
 		return 1, err
 	}
 	var exitCode int
-	err := p.forEach(p.ServiceConfigs.Get(serviceName).DependsOn, wrapperAction(func(wrapper *serviceWrapper, wrappers map[string]*serviceWrapper) {
+	err := p.forEach(serviceConfig.DependsOn, wrapperAction(func(wrapper *serviceWrapper, wrappers map[string]*serviceWrapper) {
 		wrapper.Do(wrappers, events.ServiceRunStart, events.ServiceRun, func(service Service) error {
 			if service.Name() == serviceName {
 				code, err := service.Run(ctx, commandParts, opts)
