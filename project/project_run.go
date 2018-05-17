@@ -20,7 +20,19 @@ func (p *Project) Run(ctx context.Context, serviceName string, commandParts []st
 		return 1, err
 	}
 	var exitCode int
-	err := p.forEach(serviceConfig.DependsOn, wrapperAction(func(wrapper *serviceWrapper, wrappers map[string]*serviceWrapper) {
+
+	err := p.forEach(serviceConfig.Links, wrapperAction(func(wrapper *serviceWrapper, wrappers map[string]*serviceWrapper) {
+		wrapper.Do(wrappers, events.ServiceRunStart, events.ServiceRun, func(service Service) error {
+			return service.Start(ctx)
+		})
+	}), func(service Service) error {
+		return service.Create(ctx, options.Create{})
+	})
+	if err != nil {
+		return exitCode, err
+	}
+
+	err = p.forEach([]string{}, wrapperAction(func(wrapper *serviceWrapper, wrappers map[string]*serviceWrapper) {
 		wrapper.Do(wrappers, events.ServiceRunStart, events.ServiceRun, func(service Service) error {
 			if service.Name() == serviceName {
 				code, err := service.Run(ctx, commandParts, opts)
