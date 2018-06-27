@@ -206,6 +206,7 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	if configOverride.StdinOpen {
 		// set raw terminal
 		inFd, _ = term.GetFdInfo(in)
+		logrus.Println("inFd = ", inFd)
 		//state, err := term.SetRawTerminal(inFd)
 		//if err != nil {
 		//	return -1, err
@@ -224,8 +225,8 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 		return -1, err
 	}
 
-	//logrus.Println("Don't resize the container")
-	if configOverride.Tty {
+	logrus.Println("Don't resize the container")
+	/*if configOverride.Tty {
 		ws, err := term.GetWinsize(inFd)
 		if err != nil {
 			return -1, err
@@ -239,7 +240,7 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 		if err := c.client.ContainerResize(ctx, c.container.ID, resizeOpts); err != nil {
 			return -1, err
 		}
-	}
+	}*/
 
 	if err := <-errCh; err != nil {
 		logrus.Debugf("Error hijack: %s", err)
