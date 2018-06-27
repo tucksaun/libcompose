@@ -180,6 +180,7 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 		out, stderr io.Writer
 		in          io.ReadCloser
 		inFd        uintptr
+		isTerminal  bool
 	)
 
 	if configOverride.StdinOpen {
@@ -205,8 +206,8 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	logrus.Println("Don't open STDIN when TTY is true")
 	if configOverride.StdinOpen {
 		// set raw terminal
-		inFd, _ = term.GetFdInfo(in)
-		logrus.Println("inFd = ", inFd)
+		inFd, isTerminal = term.GetFdInfo(in)
+		logrus.Println("inFd = ", inFd, "isTerminal = ", isTerminal)
 		//state, err := term.SetRawTerminal(inFd)
 		//if err != nil {
 		//	return -1, err
