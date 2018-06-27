@@ -216,7 +216,7 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	// holdHijackedConnection (in goroutine)
 	errCh = make(chan error, 1)
 	go func() {
-		errCh <- holdHijackedConnection(configOverride.Tty, in, out, stderr, resp)
+		errCh <- holdHijackedConnection(configOverride.Attach, in, out, stderr, resp)
 	}()
 
 	if err := c.client.ContainerStart(ctx, c.container.ID, types.ContainerStartOptions{}); err != nil {
