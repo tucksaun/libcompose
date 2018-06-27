@@ -16,7 +16,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
-	"github.com/docker/docker/pkg/term"
 	"github.com/docker/go-connections/nat"
 	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/labels"
@@ -179,14 +178,13 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 		errCh       chan error
 		out, stderr io.Writer
 		in          io.ReadCloser
-		inFd        uintptr
-		isTerminal  bool
+		//inFd        uintptr
 	)
 
 	if configOverride.StdinOpen {
 		in = os.Stdin
 	}
-	if configOverride.Tty {
+	if configOverride.Attach {
 		out = os.Stdout
 		stderr = os.Stderr
 	}
@@ -204,17 +202,16 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	}
 
 	logrus.Println("Don't open STDIN when TTY is true")
-	if configOverride.StdinOpen {
+	/*if configOverride.StdinOpen {
 		// set raw terminal
-		inFd, isTerminal = term.GetFdInfo(in)
-		logrus.Println("inFd = ", inFd, "isTerminal = ", isTerminal)
-		//state, err := term.SetRawTerminal(inFd)
-		//if err != nil {
-		//	return -1, err
-		//}
+		inFd, _ = term.GetFdInfo(in)
+		state, err := term.SetRawTerminal(inFd)
+		if err != nil {
+			return -1, err
+		}
 		// restore raw terminal
-		//defer term.RestoreTerminal(inFd, state)
-	}
+		defer term.RestoreTerminal(inFd, state)
+	}*/
 
 	// holdHijackedConnection (in goroutine)
 	errCh = make(chan error, 1)
@@ -227,21 +224,21 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	}
 
 	logrus.Println("Don't resize the container")
-	if configOverride.Tty {
-		/*ws, err := term.GetWinsize(inFd)
+	/*if configOverride.Tty {
+		ws, err := term.GetWinsize(inFd)
 		if err != nil {
 			return -1, err
-		}*/
+		}
 
 		resizeOpts := types.ResizeOptions{
-			Height: uint(20),
-			Width:  uint(80),
+			Height: uint(ws.Height),
+			Width:  uint(ws.Width),
 		}
 
 		if err := c.client.ContainerResize(ctx, c.container.ID, resizeOpts); err != nil {
 			return -1, err
 		}
-	}
+	}*/
 
 	if err := <-errCh; err != nil {
 		logrus.Debugf("Error hijack: %s", err)

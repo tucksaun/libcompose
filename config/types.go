@@ -140,9 +140,10 @@ type ServiceConfig struct {
 	ReadOnly        bool                 `yaml:"read_only,omitempty"`
 	StdinOpen       bool                 `yaml:"stdin_open,omitempty"`
 	Tty             bool                 `yaml:"tty,omitempty"`
-	User            string               `yaml:"user,omitempty"`
-	WorkingDir      string               `yaml:"working_dir,omitempty"`
-	Ulimits         yaml.Ulimits         `yaml:"ulimits,omitempty"`
+	Attach          bool
+	User            string       `yaml:"user,omitempty"`
+	WorkingDir      string       `yaml:"working_dir,omitempty"`
+	Ulimits         yaml.Ulimits `yaml:"ulimits,omitempty"`
 }
 
 // VolumeConfig holds v2 volume configuration
