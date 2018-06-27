@@ -203,16 +203,16 @@ func (c *Container) Run(ctx context.Context, configOverride *config.ServiceConfi
 	}
 
 	logrus.Println("Don't open STDIN when TTY is true")
-	/*if configOverride.StdinOpen {
+	if configOverride.StdinOpen {
 		// set raw terminal
 		inFd, _ = term.GetFdInfo(in)
-		state, err := term.SetRawTerminal(inFd)
-		if err != nil {
-			return -1, err
-		}
+		//state, err := term.SetRawTerminal(inFd)
+		//if err != nil {
+		//	return -1, err
+		//}
 		// restore raw terminal
-		defer term.RestoreTerminal(inFd, state)
-	}*/
+		//defer term.RestoreTerminal(inFd, state)
+	}
 
 	// holdHijackedConnection (in goroutine)
 	errCh = make(chan error, 1)
